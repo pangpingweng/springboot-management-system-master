@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>运动员列表</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" media="all"/>
+</head>
+<body>
+<fieldset class="table-search-fieldset">
+    <legend>搜索信息</legend>
+    <div style="margin: 10px 10px 10px 10px">
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">学号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="sno" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="sname" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button type="submit" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script type="text/html" id="topBar">
+    <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add" >添加</button>
+    </script>
+
+</fieldset>
+    <table id="Table" lay-filter="goods"></table>
+    <div id="pageDemo"></div>
+</body>
+<!-- 侧边工具栏 layTpl模板 -->
+<script type="text/html" id="rightBar">
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!--头部工具栏-->
+<script src="./layui/layui.js"></script>
+<script src="./js/jquery-2.1.1.min.js"></script>
+<script>
+   layui.use(['table','laypage','jquery','layer','form'],function () {
+      var table=layui.table;
+      var laypage=layui.laypage;
+      var $=layui.jquery;
+      var layer=layui.layer;
+      var form=layui.form;
+      //展示一行数据
+      console.log(table);
+
+        //加载数据
+       table.render({
+           elem:'#Table',
+           url:'/athletes/findAll',
+           page:true,
+           limit:10,
+           skin:'#e77c8e',
+           limits:[10,20,30],
+           cols:[[
+               {type: 'checkbox', fixed: 'left'},
+               {field:"sno",title:"学号",width:120,sort:true},
+               {field:"sname",title:"姓名",width:120,edit:"text"},
+               {field:"sex",title:"性别",width:120,edit:"text"},
+               {field:"age",title:"年龄",width:120,edit:"text"},
+               {field:"lesson",title:"班级",width:120,edit:"text"},
+               {field:"major",title:"专业",width:180,edit:"text"},
+               {field:"dept",title:"院系",width:180,edit:"text"},
+               {field:"操作",title:"操作",toolbar:"#rightBar",align:"center"}
+           ]],
+           toolbar:'#topBar',
+
+       });
+       //搜索监听
+       form.on('submit(data-search-btn)', function (data) {
+           var result = JSON.stringify(data.field);
+           var athlete={};
+           athlete.sno = data.field.sno
+           athlete.sname = data.field.sname
+           // layer.alert(result, {
+           //     title: '最终的搜索信息'
+           // });
+
+           //执行搜索重载
+           table.reload('Table', {
+               url:"/athletes/findAll",
+               method: "get",
+               page: {
+                   curr: 1
+               }
+               , where: athlete
+           }, 'data');
+
+           return false;
+       });
+       /*监听行工具栏*/
+        table.on('tool(goods)',function (obj) {
+            //获取当前行数据
+            var data=obj.data;
+            //打印
+            console.log(data);
+            //获取lay-event的值
+            var event=obj.event;
+
+            //判断点击的按钮
+            switch (event) {
+                //删除
+                case 'del':
+                    layer.confirm("确认删除吗?",function (index) {
+                        $.ajax({
+                            type:"get",
+                            url:"/athletes/deleteBySno?sno="+data.sno,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",//返回的数据类型格式
+                            success:function (rel) {
+                                obj.del();
+                                layer.msg(rel.msg,{icon: 1,time: 1250});
+                            },
+                            error:function (rel) {
+                                console.log(rel, 'error');
+                                layer.msg("查询商品异常，请联系管理员！", {icon: 2, time: 1250});
+                            }
+                        });
+                        //关闭弹出框
+                        layer.close(index);
+                    });
+                    break;
+            } //switch 结束位置
+        }); //监听行工具栏结束位置
+
+       /*监听数据表格edit*/
+       /*由于使用监听功能，按钮【更新】冲突无法更新*/
+       table.on('edit(goods)',function (data) {
+           //获取行数据
+           var tr=data.data;
+           $.ajax({
+               type:"post",
+               url:"/athletes/updateBySno",
+               data:JSON.stringify(tr),
+               contentType: "application/json; charset=utf-8",
+               dataType: "json",//返回的数据类型格式
+               success:function (rel) {
+                   layer.msg(rel.msg,{icon: 1,time: 1250});
+               },error:function () {
+                   layer.msg("修改失败，请联系管理员！", {icon: 2, time: 1250});
+               },
+           });
+       });
+
+       /*监听添加按钮 实现添加数据 完成*/
+       table.on('toolbar(goods)',function (addObj) {
+           if (addObj.event === 'add') {
+           //通过子页面添加数据
+           layer.open({
+               type:2,
+               title:"信息添加",
+               area:['500px','600px'],
+               offset:'auto',
+               content:'addathlete-page.html',
+               btn:['提交','关闭'],
+               yes:function(index, layero){
+                   // //得到iframe页面中body 的值
+                   var body = layer.getChildFrame('body', index);
+                   //根据弹出层页面的form id取值
+                   var sno=body.find("#sno").val();
+                   var sname=body.find("#sname").val();
+                   var sex=body.find("#sex").val();
+                   var age=body.find("#age").val();
+                   var lesson=body.find("#lesson").val();
+                   var major=body.find("#major").val();
+                   var dept=body.find("#dept").val();
+
+                   var data={
+                       sno:sno,
+                       sname:sname,
+                       sex:sex,
+                       age:age,
+                       lesson:lesson,
+                       major:major,
+                       dept:dept,
+                   };
+
+                   $.ajax({
+                       type:"post",
+                       url:"/athletes/addAthlete",
+                       data:JSON.stringify(data),
+                       contentType: "application/json; charset=utf-8",
+                       dataType: "json",//返回的数据类型格式
+                       success:function (rel) {
+                           layer.msg(rel.msg,{icon: 1,time: 1250});
+                           table.reload('Table',{page:{curr:$(".layui-laypage-em").next().html()}})
+                       },error:function () {
+                           layer.msg("添加失败，请联系管理员！", {icon: 2, time: 1250});
+                       },
+                   });
+                   //完成后关闭
+                   layer.closeAll();
+               },
+               btn2:function(){
+                   //第二个按钮，关闭
+                   layer.closeAll();
+               },
+           });
+       }
+       });
+   });
+</script>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/springboot-layui-sportmanage/springBoot_LayUi.iml" filepath="$PROJECT_DIR$/springboot-layui-sportmanage/springBoot_LayUi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/springboot-management-system-master.iml" filepath="$PROJECT_DIR$/.idea/springboot-management-system-master.iml" />
+    </modules>
+  </component>
+</project>

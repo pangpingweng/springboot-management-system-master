@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--映射地址-->
+<mapper namespace="cn.lay.mapper.AthleteMapper">
+
+    <select id="findAll" resultType="cn.lay.pojo.Athlete">
+        select * from athlete
+        where
+            <if test="sno!=null">
+            sno like '%' #{sno} '%' and
+            </if>
+            <if test="sname!=null">
+                sname like '%' #{sname} '%' and
+            </if>
+            status=0
+
+    </select>
+
+    <delete id="deleteBySno" parameterType="String">
+        update `athlete` set`status`=#{sid} where sno=#{sno}
+    </delete>
+
+    <update id="updateBySno" parameterType="cn.lay.pojo.Athlete" >
+        update `athlete` set `sname`=#{sname},`sex`=#{sex},`age`=#{age},`lesson`=#{lesson},`major`=#{major},`dept`=#{dept} where sno=#{sno}
+    </update>
+
+    <insert id="add" parameterType="cn.lay.pojo.Athlete">
+        insert into `athlete`(`sno`,`sname`,`sex`,`age`,`lesson`,`major`,`dept`,`status`)
+        values(#{sno},#{sname},#{sex},#{age},#{lesson},#{major},#{dept},0)
+    </insert>
+</mapper>

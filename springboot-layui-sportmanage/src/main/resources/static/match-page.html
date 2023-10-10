@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>项目分页列表</title>
+    <link rel="stylesheet" type="text/css" href="/layui/css/layui.css" media="all"/>
+    <script src="/layui/layui.js"></script>
+    <script src="/js/jquery-2.1.1.min.js"></script>
+</head>
+<body>
+<!--数据表格-->
+<table id="goodsTable" lay-filter="goods">
+    <thead>
+    <tr class="layui-bg-cyan">
+        <th>项目名称</th>
+        <th>历史记录</th>
+        <th>比赛时间</th>
+        <th>比赛地点</th>
+        <th>比赛类型</th>
+    </tr>
+    </thead>
+    <!--绑定数据-->
+    <tbody id="show"></tbody>
+</table>
+<!--分页-->
+<div id="pageDemo"></div>
+</body>
+<!--编写模板-->
+<script type="text/html" id="tablePage">
+    {{#  layui.each(d, function(index, item){ }}
+    <tr>
+        <td>{{item.mname}}</td>
+        <td>{{item.mgrade}}</td>
+        <td>{{item.time}}</td>
+        <td>{{item.mfiled}}</td>
+        <td>{{item.mkind}}</td>
+    </tr>
+    {{# }); }}
+</script>
+<script>
+    layui.use(['laypage','jquery','laytpl'],function () {
+        var laypage = layui.laypage;
+        var $ = layui.jquery;
+        var laytpl = layui.laytpl;
+
+        $.getJSON('http://localhost:8081/athletes/findTplPage',function (data) {
+            var str=[];
+            //遍历得到的数据
+            $.each(data, function(i,item) {
+                str=item;
+            });
+            console.log(str);
+
+            laypage.render({
+                elem: 'pageDemo',
+                limit: 10,
+                theme: '#1E9FFF',
+                count: str.length,
+                limits:[10,20,30],
+                layout: ['count', 'prev','page', 'next', 'limit', 'skip'],
+                jump: function(obj){
+                    var whatSource=str.concat().splice(obj.curr*obj.limit-obj.limit,obj.limit);
+                    console.log(whatSource);
+
+                    var getTpl = tablePage.innerHTML;//获取id为demo标签的所有内容
+                    var view = document.getElementById('show');
+
+                    //模板渲染
+                    laytpl(getTpl).render(whatSource,function(html){
+                        view.innerHTML = html;
+                    });
+                }
+            });
+        })
+    })
+</script>
+</html>

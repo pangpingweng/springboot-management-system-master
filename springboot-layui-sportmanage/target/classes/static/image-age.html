@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <style>
+        .headPortrait2 {
+            display: block;
+            width: 300px;
+            height: 300px;
+            border-radius: 100%;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<script src="./js/jquery-2.1.1.min.js"></script>
+<script src="./js/SessionStorage.js"></script>
+<body>
+<div class="row" >
+<h1 align="center">请点击图片进行修改</h1>
+<input type="hidden" name="images" class="image">
+<div class="layui-form-item">
+    <label class="layui-form-label ">照片:</label>
+    <div class="layui-upload">
+        <input type="file" id="my_photo" style="display:none">
+        <button type="button" class="layui-btn" onclick="buttonCilck();">上传图片</button>
+        <div class="layui-upload-list">
+            <a href="javascript:" class="headPortrait2" title="点击修改" onclick="imageOnClick()">
+                <img id="mainphoto" src="./img/06.jpg" width="300" height="300">
+            </a>
+            <p id="demoText"></p>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    var dataurl;
+    var imageurl;
+    function imageOnClick(){
+        $('#my_photo').click();//my_photo隐藏的input[file]的id
+        // 头像预览
+        $("#my_photo").change(function () {//avatar_file  input[file]的ID
+            // 获取上传文件对象
+            var file = $(this)[0].files[0];
+            // 读取文件URL
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            // 阅读文件完成后触发的事件
+            reader.onload = function () {
+                // 读取的URL结果：this.result
+                $("#mainphoto").attr("src", this.result);//avatar_img  img标签的ID
+                dataurl=this.result;
+            }
+        });
+
+    }
+    function buttonCilck() {
+        var uid=handleSessionStorage("get","uid");
+        var address=dataurl;
+        // alert(address);
+        $.ajax({
+            url : "/user/setPicture",
+            data : JSON.stringify({
+                uid:uid,//需要用户uid
+                image: address
+            }),
+            contentType:'application/json;charset=UTF-8',
+            type : "POST",
+            dataType: "json",
+
+            success : function(data) {
+                imageurl=JSON.stringify(data.image);
+                    alert("图片上传成功");
+                $("#mainphoto").attr("src", imageurl);
+                parent.location.reload();
+            },
+            error:function () {
+                alert("上传失败");
+            },
+        });
+
+
+
+
+        /* 此处停留1秒刷新页面 */
+    }
+    $(document).ready(function () {
+            // $.ajax({
+            //     type:"POST",
+            //     url:"/user/showPicture",
+            //     contentType: "application/json; charset=utf-8",
+            //     dataType: "json",//返回的数据类型格式
+            //     data: JSON.stringify({
+            //         uid:1
+            //     }),
+            //     success:function (data) {
+            //         var image =data.image;
+                    // console.log(image[0].image);
+               var imageurl= handleSessionStorage("get","imageurl");
+               if(imageurl!=""){
+                   $("#mainphoto").attr("src", imageurl);
+               }
+            //     },
+            //     error:function (data) {
+            //
+            //     }
+            // });
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>注册登录界面Ⅰ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="./css/login.css">
+    <script src="./js/jquery-2.1.1.min.js"></script>
+    <script src="./js/SessionStorage.js"></script>
+</head>
+<body>
+<div class="container right-panel-active">
+    <!--登录-->
+    <div class="container_form container--signup">
+    <form action="#" class="form" id="form1">
+        <h2 class="">运动会管理系统</h2>
+        <h3 class="">注册用户</h3>
+        <input type="text" placeholder="User" class="input" id="user"/>
+        <input type="password" placeholder="Password" class="input" id="password2" />
+        <button class="btn" id="register">注册</button>
+    </form>
+</div>
+    <!-- 登录 -->
+    <div class="container_form container--signin">
+        <form action="" class="form" id="form2">
+            <h2 class="">运动会管理系统</h2>
+            <h3 class="">登录</h3>
+            <input type="username" placeholder="Username" class="input" id="username"/>
+            <input type="password" placeholder="Password" class="input" id="password"/>
+            <button class="btn" id="login" >登录</button>
+        </form>
+    </div>
+    <!-- 注册 -->
+
+    <!-- 浮层 -->
+    <div class="container_overlay">
+        <div class="overlay">
+            <div class="overlay_panel overlay--left">
+                <button class="btn" id="signIn">登录</button>
+            </div>
+            <div class="overlay_panel overlay--right">
+                <button class="btn" id="signUp">注册</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 背景 -->
+<div class="slidershow">
+    <div class="slidershow--image" style="background-image: url('https://cdn.jsdelivr.net/gh/superjavas/picturedemo/image/04.jpg')"></div>
+    <div class="slidershow--image" style="background-image: url('https://cdn.jsdelivr.net/gh/superjavas/picturedemo/image/04.jpg')"></div>
+</div>
+
+<!-- partial -->
+<script>
+    const signInBtn = document.getElementById("signIn");
+    const signUpBtn = document.getElementById("signUp");
+    const firstForm = document.getElementById("form1");
+    const secondForm = document.getElementById("form2");
+    const container = document.querySelector(".container");
+
+    signInBtn.addEventListener("click", () => {
+        container.classList.remove("right-panel-active");
+    });
+
+    signUpBtn.addEventListener("click", () => {
+        container.classList.add("right-panel-active");
+    });
+
+    firstForm.addEventListener("submit", (e) => e.preventDefault());
+    secondForm.addEventListener("submit", (e) => e.preventDefault());
+    $(document).ready(function () {
+        $("#login").click(function () {
+            var username=$("#username").val();
+            var password=$("#password").val();
+            if (username!=""&&password!=""){
+                $.ajax({
+                    type: "POST",//方法类型
+                    dataType: "json",
+                    url: "/user/login" ,
+                    contentType:'application/json;charset=UTF-8',
+
+                    data: JSON.stringify({
+                        username:username,
+                        password:password
+                    }),
+                    success:function (data) {
+                        var data1=data
+                        // alert(data1.username);
+                        handleSessionStorage("set","uid",data1.uid);
+                        handleSessionStorage("set","username",data1.username);
+                        $("#input").val("");
+                        window.location='/index';
+                    },
+                    error:function (data) {
+                        $("#input").val("");
+                        alert("用户名或密码错误");
+                    }
+
+                });
+            }
+            else {
+                alert("用户或密码不能为空");
+
+            }
+        });
+
+        $("#register").click(function () {
+            var username=$("#user").val();
+            var password=$("#password2").val();
+            if (username!=""&&password!="") {
+                $.ajax({
+                    type: "POST",//方法类型
+                    dataType: "json",
+                    url: "/user/register",
+                    contentType: 'application/json;charset=UTF-8',
+
+                    data: JSON.stringify({
+                        username: username,
+                        password: password
+                    }),
+                    success: function (data) {
+                        alert(JSON.stringify(data.msg))
+                    },
+                    error: function (data) {
+                        alert("用户名已存在");
+                    }
+
+                });
+            }
+            else {
+                alert("用户名或密码不能为空")
+            }
+        })
+
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>参赛运动员增加页面复用表单</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" media="all"/>
+</head>
+<body>
+<form class="layui-form layui-form-pane"  id="reuseForm" action="#">
+
+    <!--    <input type="hidden" name="id" id="id" autocomplete="off" class="layui-input" >-->
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">学号</label>
+        <div class="layui-input-block">
+            <input type="text" name="sno" id="sno" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="sname" id="sname" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">参赛项目</label>
+        <div class="layui-input-block">
+<!--            <input type="text" name="mno" id="mno" autocomplete="off" class="layui-input" >-->
+            <select name="mno" id="mno" class="option">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">比赛成绩</label>
+        <div class="layui-input-block">
+
+            <input type="text" name="pgrade" id="pgrade" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+
+    <!--<div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-filter="sub" id="sub">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>-->
+</form>
+</body>
+<script src="./layui/layui.js"></script>
+<script src="./js/jquery-2.1.1.min.js"></script>
+<script>
+    layui.use(['form','layer','jquery'],function () {
+        var form=layui.form;
+        var layer=layui.layer;
+        var $=layui.jquery;
+        $(document).ready(function () {
+            $.ajax({
+                type:"get",
+                url:"http://localhost:8081/entry/selectMatch",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",//返回的数据类型格式
+                success:function (result) {
+                    var data =result.data;
+                    for(var i =0;i<data.length;i++){
+                        var d='<option value="'+data[i].mno+'">'+data[i].mname+'</option>';
+                        $("#mno").append(d);
+                        var form = layui.form
+                        form.render();
+                    }
+                },
+                error:function (data) {
+                    alert("出错")
+                }
+            })
+        });
+    });
+
+
+</script>
+</html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--映射地址-->
+<mapper namespace="cn.lay.mapper.EntryMapper">
+    <select id="findAllEntry" resultType="cn.lay.pojo.Entry">
+        select * from `entry`
+        where
+        <if test="sno!=null">
+            sno like '%' #{sno} '%' and
+        </if>
+        <if test="sname!=null">
+            sname like '%' #{sname} '%' and
+        </if>
+        status=0
+    </select>
+    <select id="selectMatch" resultType="cn.lay.pojo.Match">
+        select * from `match` where
+        status=0
+    </select>
+    <delete id="deleteBySno" parameterType="String">
+        update `entry` set`status`=#{entry_id} where `sno`=#{sno}
+    </delete>
+
+    <update id="updateBySno" parameterType="cn.lay.pojo.Entry" >
+        update `entry` set `sname`=#{sname},`pgrade`=#{pgrade} where `sno`=#{sno} and `mno`=#{mno}
+    </update>
+
+    <insert id="addEntry" parameterType="cn.lay.pojo.Entry">
+        insert into `entry`(`sno`,`sname`,`mno`,`pgrade`,`status`)
+        values(#{sno},#{sname},#{mno},#{pgrade},0)
+    </insert>
+
+</mapper>

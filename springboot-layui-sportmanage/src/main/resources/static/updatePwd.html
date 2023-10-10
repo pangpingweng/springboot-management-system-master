@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改密码</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" media="all"/>
+</head>
+<body>
+
+
+    <!--    <input type="hidden" name="id" id="id" autocomplete="off" class="layui-input" >-->
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">旧密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="title"id="oldPwd" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">新密码</label>
+        <div class="layui-input-block">
+            <input type="password"  id="newPwd" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">确定新密码</label>
+        <div class="layui-input-block">
+            <input type="password"  id="newPwd1" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-filter="sub" id="sub">立即提交</button>
+        </div>
+    </div>
+</body>
+<script src="./layui/layui.js"></script>
+<script src="./js/jquery-2.1.1.min.js"></script>
+<script src="./js/SessionStorage.js"></script>
+<script>
+    layui.use(['form','jquery'],function () {
+        var $=layui.jquery;
+        $(document).ready(function () {
+            $("#sub").click(function () {
+                var uid=handleSessionStorage("get","uid");
+                var oldPassword=$("#oldPwd").val();
+                var newPassWord=$("#newPwd").val();
+                var newPassWord1=$("#newPwd1").val();
+                if (newPassWord===newPassWord1){
+                    $.ajax({
+                        type:"post",
+                        url:"user/updatePwd",
+                        data: JSON.stringify({
+                            uid:uid,
+                            oldPassword:oldPassword,
+                            newPassword:newPassWord1,
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",//返回的数据类型格式
+                        success:function (result) {
+                            var msg=JSON.stringify(result.msg);
+                            alert(msg);
+                            $("#input").val("");
+                        },
+                        error:function (data) {
+                            $("input").val("");
+                            alert("错误")
+                        }
+                    })
+                }
+                else{
+                    alert("两次输入密码不一致，请检查后重新输入");
+                }
+
+            })
+
+        });
+    });
+
+
+</script>
+</html>

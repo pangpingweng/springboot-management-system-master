@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>比赛项目增加页面复用表单</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" media="all"/>
+</head>
+<body>
+<form class="layui-form layui-form-pane"  id="reuseForm" action="#">
+
+    <!--    <input type="hidden" name="id" id="id" autocomplete="off" class="layui-input" >-->
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">项目名</label>
+        <div class="layui-input-block">
+            <input type="text" name="mname" id="mname" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">历史记录</label>
+        <div class="layui-input-block">
+            <input type="text" name="mgrade" id="mgrade" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">比赛时间</label>
+        <div class="layui-input-block">
+            <input type="text" name="time" id="time" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">比赛地点</label>
+        <div class="layui-input-block">
+            <input type="text" name="mfiled" id="mfiled" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label layui-form-pane">项目类型</label>
+        <div class="layui-input-block">
+            <input type="text" name="mkind" id="mkind" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+
+    <!--<div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-filter="sub" id="sub">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>-->
+</form>
+</body>
+<script src="./layui/layui.js"></script>
+<script>
+    layui.use(['form','layer','jquery'],function () {
+        var form=layui.form;
+        var layer=layui.layer;
+        var $=layui.jquery;
+    });
+</script>
+</html>

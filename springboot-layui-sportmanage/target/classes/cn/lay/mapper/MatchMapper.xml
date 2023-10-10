@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--映射地址-->
+<mapper namespace="cn.lay.mapper.MatchMapper">
+
+    <select id="findAllMatch" resultType="cn.lay.pojo.Match">
+        select * from `match`
+        where
+        <if test="mname!=null">
+            mname like '%' #{mname} '%' and
+        </if>
+        <if test="mkind!=null">
+            mkind like '%' #{mkind} '%' and
+        </if>
+        status=0
+
+    </select>
+
+    <delete id="deleteByMno" parameterType="int">
+        update `match` set`status`=#{mno} where mno=#{mno}
+    </delete>
+
+    <update id="updateByMno" parameterType="cn.lay.pojo.Match" >
+        update `match` set `mname`=#{mname},`mgrade`=#{mgrade},`time`=#{time},`mfiled`=#{mfiled},`mkind`=#{mkind} where mno=#{mno}
+    </update>
+
+    <insert id="addMatch" parameterType="cn.lay.pojo.Match">
+        insert into `match`(`mname`,`mgrade`,`time`,`mfiled`,`mkind`,`status`)
+        values(#{mname},#{mgrade},#{time},#{mfiled},#{mkind},0)
+    </insert>
+</mapper>

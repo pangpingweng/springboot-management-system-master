@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--映射地址-->
+<mapper namespace="cn.lay.mapper.UserMapper">
+
+<!--    <delete id="deleteBySno" parameterType="String">-->
+<!--        update `athlete` set`status`=#{sid} where sno=#{sno}-->
+<!--    </delete>-->
+    <select id="showPicture" resultType="cn.lay.req.PictureReq">
+        select `image` from `user` where uid=#{uid}
+    </select>
+    <update id="setPicture" parameterType="cn.lay.req.PictureReq" >
+        update `user` set `image`=#{image} where uid=#{uid}
+    </update>
+    <select id="login" resultType="cn.lay.pojo.User">
+        select * from `user` where username = #{username} and password = #{password}
+    </select>
+    <insert id="register" parameterType="cn.lay.pojo.User">
+        insert into `user`(`username`,`password`)
+        values(#{username},#{password})
+    </insert>
+    <select id="updatePassword" resultType="cn.lay.pojo.User">
+        update user set password = #{password} where uid = #{uid}
+    </select>
+    <select id="findUserById" parameterType="int" resultType="cn.lay.pojo.User">
+        select * from `user` where uid = #{uid}
+    </select>
+</mapper>

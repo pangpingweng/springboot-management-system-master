@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>比赛项目列表</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" media="all"/>
+</head>
+<body>
+<fieldset class="table-search-fieldset">
+    <legend>搜索信息</legend>
+    <div style="margin: 10px 10px 10px 10px">
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="mname" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目类型</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="mkind" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button type="submit" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</fieldset>
+<table id="Table" lay-filter="goods"></table>
+<div id="pageDemo"></div>
+</body>
+<!-- 侧边工具栏 layTpl模板 -->
+<script type="text/html" id="rightBar">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!--头部工具栏-->
+<script type="text/html" id="topBar">
+    <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-event="add" id="add">
+        <i class="layui-icon">&#xe608;</i>添加
+
+    </button>
+</script>
+<script src="./layui/layui.js"></script>
+<script src="./js/jquery-2.1.1.min.js"></script>
+<script>
+    layui.use(['table','laypage','jquery','layer','form'],function () {
+        var table=layui.table;
+        var laypage=layui.laypage;
+        var $=layui.jquery;
+        var layer=layui.layer;
+        var form=layui.form;
+        //展示一行数据
+        console.log(table);
+
+        //加载数据
+        table.render({
+            elem:'#Table',
+            url:'/matches/findAllMatch',
+            page:true,
+            limit:10,
+            skin:'#e77c8e',
+            limits:[10,20,30],
+            cols:[[
+                {type: 'checkbox', fixed: 'left'},
+                {field:"mname",title:"项目名称",width:160,edit:"text"},
+                {field:"mgrade",title:"历史记录",width:160,edit:"text"},
+                {field:"time",title:"比赛时间",width:180,edit:"text"},
+                {field:"mfiled",title:"比赛地点",width:160,edit:"text"},
+                {field:"mkind",title:"比赛类型",width:180,edit:"text"},
+                {field:"操作",title:"操作",toolbar:"#rightBar",align:"center"}
+            ]],
+            toolbar:'#topBar',
+        });
+        //搜索监听
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            var match={};
+            match.mname = data.field.mname
+            match.mkind = data.field.mkind
+            // layer.alert(result, {
+            //     title: '最终的搜索信息'
+            // });
+
+            //执行搜索重载
+            table.reload('Table', {
+                url:"/matches/findAllMatch",
+                method: "get",
+                page: {
+                    curr: 1
+                }
+                , where: match
+            }, 'data');
+
+            return false;
+        });
+        /*监听行工具栏*/
+        table.on('tool(goods)',function (obj) {
+            //获取当前行数据
+            var data=obj.data;
+            //打印
+            console.log(data);
+            //获取lay-event的值
+            var event=obj.event;
+
+            //判断点击的按钮
+            switch (event) {
+                //删除
+                case 'del':
+                    layer.confirm("确认删除吗?",function (index) {
+                        $.ajax({
+                            type:"get",
+                            url:"/matches/deleteByMno?mno="+data.mno,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",//返回的数据类型格式
+                            success:function (rel) {
+                                obj.del();
+                                layer.msg(rel.msg,{icon: 1,time: 1250});
+                            },
+                            error:function (rel) {
+                                console.log(rel, 'error');
+                                layer.msg("查询商品异常，请联系管理员！", {icon: 2, time: 1250});
+                            }
+                        });
+                        //关闭弹出框
+                        layer.close(index);
+                    });
+                    break;
+            } //switch 结束位置
+        }); //监听行工具栏结束位置
+
+        /*监听数据表格edit*/
+        /*由于使用监听功能，按钮【更新】冲突无法更新*/
+        table.on('edit(goods)',function (data) {
+            //获取行数据
+            var tr=data.data;
+            $.ajax({
+                type:"post",
+                url:"/matches/updateByMno",
+                data:JSON.stringify(tr),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",//返回的数据类型格式
+                success:function (rel) {
+                    layer.msg(rel.msg,{icon: 1,time: 1250});
+                },error:function () {
+                    layer.msg("修改失败，请联系管理员！", {icon: 2, time: 1250});
+                },
+            });
+        });
+
+        /*监听添加按钮 实现添加数据 完成*/
+        table.on('toolbar',function (addObj) {
+            if (addObj.event === 'add') {
+                var add = addObj.data;
+                //通过子页面添加数据
+                layer.open({
+                    type: 2,
+                    title: "信息添加",
+                    area: ['500px', '600px'],
+                    offset: 'auto',
+                    content: 'addmatch-page.html',
+                    btn: ['提交', '关闭'],
+                    yes: function (index, layero) {
+                        // //得到iframe页面中body 的值
+                        var body = layer.getChildFrame('body', index);
+                        //根据弹出层页面的form id取值
+                        var mname = body.find("#mname").val();
+                        var mgrade = body.find("#mgrade").val();
+                        var time = body.find("#time").val();
+                        var mfiled = body.find("#mfiled").val();
+                        var mkind = body.find("#mkind").val();
+
+                        var data = {
+                            mname: mname,
+                            mgrade: mgrade,
+                            time: time,
+                            mfiled: mfiled,
+                            mkind: mkind,
+                        };
+
+                        $.ajax({
+                            type: "post",
+                            url: "/matches/addMatch",
+                            data: JSON.stringify(data),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",//返回的数据类型格式
+                            success: function (rel) {
+                                layer.msg(rel.msg, {icon: 1, time: 1250});
+                                table.reload('Table', {page: {curr: $(".layui-laypage-em").next().html()}})
+                            }, error: function () {
+                                layer.msg("添加失败，请联系管理员！", {icon: 2, time: 1250});
+                            },
+                        });
+                        //完成后关闭
+                        layer.closeAll();
+
+                    },
+                    btn2: function () {
+                        //第二个按钮，关闭
+                        layer.closeAll();
+                    },
+                });
+            }
+        })
+    });
+</script>
+</html>
